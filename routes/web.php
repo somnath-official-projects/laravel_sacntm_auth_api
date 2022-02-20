@@ -14,4 +14,4 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [Controller::class, 'routes']);
+Route::get('/', [Controller::class, 'routes'])->name('routes-info');
