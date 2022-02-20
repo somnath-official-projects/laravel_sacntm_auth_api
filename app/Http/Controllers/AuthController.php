@@ -81,13 +81,25 @@ class AuthController extends Controller
         }
     }
 
-    public function logout(Request $request)
+    /**
+     * Delete the user's current session.
+     *
+     * @param Request
+     * @return Response
+     **/
+    public function logout(Request $request): Response
     {
         $request->user()->currentAccessToken()->delete();
         return response(["message" => "Successfully logout"], 200);
     }
 
-    public function logoutAll(Request $request)
+    /**
+     * Delete the user's all sessions.
+     *
+     * @param Request
+     * @return Response
+     **/
+    public function logoutAll(Request $request): Response
     {
         $request->user()->tokens()->delete();
         return response(["message" => "Successfully logout from all sessions."], 200);
