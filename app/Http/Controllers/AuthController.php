@@ -2,33 +2,43 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    /**
+     * Register a new user using name, email, password and password_confirmation
+     * where all are required field.
+     *
+     * @param Request
+     * @return Response
+     **/
+    public function register(Request $request): Response
     {
+        // Validating request body.
         $fields = $request->validate([
             'name' => 'required|string',
             'email' => 'required|string|unique:users|email',
             'password' => 'required|string|confirmed'
         ]);
 
+        // Creating new user with the provided data.
         $user = User::create([
             'name' => $fields['name'],
             'email' => $fields['email'],
             'password' => bcrypt($fields['password']),
         ]);
 
-        $token = $user->createToken('authToken')->plainTextToken;
+        // Create a session for the user.
+        $token = $this->createSession($user);
 
-        $response = [
+        // Return JSON response on success.
+        return response([
             'user' => $user,
             'token' => $token
-        ];
-
-        return response($response, 201);
+        ], 201);
     }
 
     public function login(Request $request)
@@ -63,5 +73,16 @@ class AuthController extends Controller
     {
         $request->user()->tokens()->delete();
         return response(["message" => "Successfully logout from all sessions."], 200);
+    }
+
+    /**
+     * Create a session for user and return the access token
+     *
+     * @param User
+     * @return string
+     **/
+    public function createSession(User $user): string
+    {
+        return $user->createToken('authToken')->plainTextToken;
     }
 }
